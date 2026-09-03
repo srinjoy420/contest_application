@@ -9,7 +9,10 @@ export const isLoggedIn=(req,res,next)=>{
             return res.status(401).json({message:"the token not found"})
         }
         const decode=jwt.verify(token,process.env.ACESS_TOKEN_SECRET)
-        req.user=decode
+        req.user = {
+            ...decode,
+            id: decode.id || decode._id?.toString?.() || decode._id
+        }
         next()
         
     } catch (error) {

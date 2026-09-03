@@ -5,6 +5,8 @@ import dotenv from "dotenv"
 import cors from "cors"
 import ConnectDB from "./config/DB.js"
 import authRouter from "./routes/user.routes.js"
+import postRouter from "./routes/post.routes.js"
+
 dotenv.config()
 
 
@@ -25,6 +27,7 @@ app.get("/",(req,res)=>{
     res.send("hello server is running")
 })
 app.use("/api/v1/auth",authRouter)
+app.use("/api/v1/post",postRouter)
 ConnectDB()
 
 app.listen(port,()=>{
