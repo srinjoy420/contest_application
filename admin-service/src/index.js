@@ -4,6 +4,7 @@ import cors from "cors"
 
 import cookieparser from "cookie-parser"
 import { runCascade } from "./services/casecadeEngine.js"
+import { getGlobalRanking, getCategoryRankings, getConsistencyRanking } from "./services/userServiceClient.js"
 dotenv.config()
 
 const app=express()
@@ -21,6 +22,27 @@ const port=process.env.PORT || 5000
 
 app.get("/",(req,res)=>{
     res.send("hello server is running")
+})
+app.get("/api/v1/admin/rankings/global", async (req, res) => {
+    try {
+        return res.json(await getGlobalRanking())
+    } catch (error) {
+        return res.status(502).json({ error: error.message })
+    }
+})
+app.get("/api/v1/admin/rankings/category", async (req, res) => {
+    try {
+        return res.json(await getCategoryRankings())
+    } catch (error) {
+        return res.status(502).json({ error: error.message })
+    }
+})
+app.get("/api/v1/admin/rankings/consistency", async (req, res) => {
+    try {
+        return res.json(await getConsistencyRanking())
+    } catch (error) {
+        return res.status(502).json({ error: error.message })
+    }
 })
 app.post("/api/v1/admin/run-cascade", async (req, res) => {
     if (req.headers["x-internal-secret"] !== process.env.INTERNAL_SERVICE_SECRET) {
