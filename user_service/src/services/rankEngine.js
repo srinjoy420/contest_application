@@ -118,7 +118,10 @@ export async function computeConsistencyRanking() {
     let bestSinglePost = null;
 
     for (let w = 1; w <= CONSISTENCY_WEEKS; w++) {
-      const weekPosts = [...weeks.get(w)].sort((a, b) => b.score - a.score);
+      const weekPosts = [...weeks.get(w)].sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return comparePosts(a, b);
+      });
       const top3 = weekPosts.slice(0, CONSISTENCY_TOP_N_PER_WEEK);
       totalScore += top3.reduce((sum, p) => sum + p.score, 0);
 

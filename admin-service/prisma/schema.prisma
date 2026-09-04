@@ -16,3 +16,62 @@ model Test{
   title String
 
 }
+
+enum PrizeTier {
+  GRAND_PRIZE
+  CONSISTENCY_1ST
+  CONSISTENCY_2ND
+  TOP_PERFORMER
+  CATEGORY_1ST
+  CATEGORY_2ND
+}
+
+enum KycStatus {
+  PENDING
+  PASSED
+  FAILED
+}
+enum WinnerStatus {
+  ACTIVE      
+  CASCADED    
+}
+model Winner {
+  id            String       @id @default(uuid())
+
+  // reference to User Service's Mongo _id — NOT a foreign key, since it's a separate DB/service
+  userId        String
+
+  tier          PrizeTier
+  category      String?      // only set when tier is CATEGORY_1ST / CATEGORY_2ND
+  rank          Int          // position within tier, e.g. Top Performer #1..#10, useful for ordering/display
+
+  score         Float        // the score that earned them this slot, snapshotted at award time
+  status        WinnerStatus @default(ACTIVE)
+
+  kyc           KycRequest?
+
+  cascadedFromId String?     // if this winner is a replacement, points to the Winner.id who vacated the slot
+  cascadedFrom   Winner?     @relation("CascadeChain", fields: [cascadedFromId], references: [id])
+  cascadedTo     Winner[]    @relation("CascadeChain")
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // one ACTIVE prize per person, enforced at DB level
+  @@unique([userId, status], name: "one_active_prize_per_user")
+  @@index([tier])
+  @@index([category])
+}
+
+model KycRequest {
+  id          String     @id @default(uuid())
+  winner      Winner     @relation(fields: [winnerId], references: [id])
+  winnerId    String     @unique
+
+  status      KycStatus  @default(PENDING)
+  reviewedAt  DateTime?
+  reviewedBy  String?    // admin user identifier, if you track that
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
