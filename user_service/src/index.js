@@ -6,6 +6,8 @@ import cors from "cors"
 import ConnectDB from "./config/DB.js"
 import authRouter from "./routes/user.routes.js"
 import postRouter from "./routes/post.routes.js"
+import rankingroute from "./routes/internalRanking.routes.js"
+
 
 dotenv.config()
 
@@ -28,6 +30,7 @@ app.get("/",(req,res)=>{
 })
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/post",postRouter)
+app.use("/api/v1/ranking",rankingroute)
 ConnectDB()
 
 app.listen(port,()=>{
