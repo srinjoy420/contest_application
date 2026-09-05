@@ -3,8 +3,9 @@ import dotenv from "dotenv"
 import cors from "cors"
 
 import cookieparser from "cookie-parser"
-import { runCascade } from "./services/casecadeEngine.js"
-import { getGlobalRanking, getCategoryRankings, getConsistencyRanking } from "./services/userServiceClient.js"
+import kycRouter from "./routes/kyc.routes.js"
+import adminRoutes from "./routes/admin.routes.js"
+
 dotenv.config()
 
 const app=express()
@@ -23,40 +24,8 @@ const port=process.env.PORT || 5000
 app.get("/",(req,res)=>{
     res.send("hello server is running")
 })
-app.get("/api/v1/admin/rankings/global", async (req, res) => {
-    try {
-        return res.json(await getGlobalRanking())
-    } catch (error) {
-        return res.status(502).json({ error: error.message })
-    }
-})
-app.get("/api/v1/admin/rankings/category", async (req, res) => {
-    try {
-        return res.json(await getCategoryRankings())
-    } catch (error) {
-        return res.status(502).json({ error: error.message })
-    }
-})
-app.get("/api/v1/admin/rankings/consistency", async (req, res) => {
-    try {
-        return res.json(await getConsistencyRanking())
-    } catch (error) {
-        return res.status(502).json({ error: error.message })
-    }
-})
-app.post("/api/v1/admin/run-cascade", async (req, res) => {
-    if (req.headers["x-internal-secret"] !== process.env.INTERNAL_SERVICE_SECRET) {
-        return res.status(403).json({ error: "Forbidden" })
-    }
-
-    try {
-        const winners = await runCascade()
-        return res.status(201).json({ winners })
-    } catch (error) {
-        console.error("Cascade failed:", error)
-        return res.status(409).json({ error: error.message })
-    }
-})
+app.use('/api/v1/admin',kycRouter)
+app.use('/api/v1/admin',adminRoutes)
 app.listen(port,()=>{
     console.log(`app is running on port ${port}`);
     
