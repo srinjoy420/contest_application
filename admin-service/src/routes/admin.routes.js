@@ -5,8 +5,10 @@ import {
     getGlobalRankings,
     runAdminCascade
 } from "../controllers/admin.controller.js";
+import { isAdmin, isLoggedIn } from "../middleware/auth.middleware.js";
 
 const adminRouter = Router();
+adminRouter.use(isLoggedIn, isAdmin);
 
 adminRouter.get("/rankings/global", getGlobalRankings);
 adminRouter.get("/rankings/category", getCategoryRankingsController);

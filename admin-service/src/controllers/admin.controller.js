@@ -30,10 +30,6 @@ export const getConsistencyRankings = async (req, res) => {
 };
 
 export const runAdminCascade = async (req, res) => {
-    if (req.headers["x-internal-secret"] !== process.env.INTERNAL_SERVICE_SECRET) {
-        return res.status(403).json({ error: "Forbidden" });
-    }
-
     try {
         const winners = await runCascade();
         return res.status(201).json({ winners });

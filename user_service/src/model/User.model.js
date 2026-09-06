@@ -24,6 +24,11 @@ const userSchema=new Schema({
         type:String,
         required:true
     },
+    role:{
+        type:String,
+        enum:["user","admin"],
+        default:"user"
+    },
     
     
     
@@ -48,7 +53,8 @@ userSchema.methods.generateAcessToken=function(){
             _id:this._id,
             id:this._id.toString(),
             name:this.name,
-            email:this.email
+            email:this.email,
+            role:this.role
         },
         config.accessTokenSecret,
         {

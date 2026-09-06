@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken"
 import config from "../config/config.js"
+
 export const isLoggedIn = (req, res, next) => {
     try {
         const token = req.cookies?.accessToken
-        console.log("token found", token ? "yes" : "no");
+        console.log("token found", token ? "yes" : "no")
         if (!token) {
             return res.status(401).json({ message: "the token not found" })
         }
@@ -13,14 +14,12 @@ export const isLoggedIn = (req, res, next) => {
             id: decode.id || decode._id?.toString?.() || decode._id
         }
         next()
-
     } catch (error) {
-        console.log("Authentication middleware failed", error.message);
+        console.log("Authentication middleware failed", error.message)
         return res.status(401).json({ message: "Invalid or expired token" })
-
-
     }
 }
+
 export const isAdmin = (req, res, next) => {
     if (!req.user || req.user.role !== "admin") {
         return res.status(403).json({ message: "Access denied, admin only" })
