@@ -1,8 +1,7 @@
 import mongoose,{Schema} from "mongoose";
-import dotenv from "dotenv"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-dotenv.config()
+import config from "../config/config.js"
 const userSchema=new Schema({
     name:{
         type:String,
@@ -51,9 +50,9 @@ userSchema.methods.generateAcessToken=function(){
             name:this.name,
             email:this.email
         },
-        process.env.ACESS_TOKEN_SECRET,
+        config.accessTokenSecret,
         {
-            expiresIn:process.env.ACCESS_TOKEN_EXPIRY || "5d"
+            expiresIn:config.accessTokenExpiry || "5d"
         }
     )
 
@@ -63,8 +62,8 @@ userSchema.methods.generateRfreshToken=function(){
         {
             _id:this._id
         },
-        process.env.REFRESH_TOKEN_SECRET,
-        {expiresIn:process.env.REFRESH_TOKEN_EXPIRY || "1d"}
+        config.refreshTokenSecret,
+        {expiresIn:config.refreshTokenExpiry || "1d"}
     )
 }
 const User=mongoose.model("User",userSchema)

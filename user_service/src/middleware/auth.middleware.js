@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken"
-import dotenv from "dotenv"
-dotenv.config()
+import config from "../config/config.js"
 export const isLoggedIn=(req,res,next)=>{
     try {
         const token=req.cookies?.accessToken
@@ -8,7 +7,7 @@ export const isLoggedIn=(req,res,next)=>{
         if(!token){
             return res.status(401).json({message:"the token not found"})
         }
-        const decode=jwt.verify(token,process.env.ACESS_TOKEN_SECRET)
+        const decode=jwt.verify(token,config.accessTokenSecret)
         req.user = {
             ...decode,
             id: decode.id || decode._id?.toString?.() || decode._id

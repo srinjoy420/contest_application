@@ -1,18 +1,12 @@
 import express from "express"
 
 import cookieparser from "cookie-parser"
-import dotenv from "dotenv"
 import cors from "cors"
+import config from "./config/config.js"
 import ConnectDB from "./config/DB.js"
 import authRouter from "./routes/user.routes.js"
 import postRouter from "./routes/post.routes.js"
 import rankingroute from "./routes/internalRanking.routes.js"
-
-
-dotenv.config()
-
-
-
 
 const app=express()
 
@@ -23,7 +17,7 @@ app.use(cors({
     credentials:true,
     methods:["GET","POST","PUT","DELETE"]
 }))
-const port=process.env.PORT || 3000
+const port=config.port || 3000
 
 app.get("/",(req,res)=>{
     res.send("hello server is running")

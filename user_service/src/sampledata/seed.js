@@ -2,11 +2,8 @@ import mongoose from "mongoose";
 import Post from "../model/Post.model.js";
 import User from "../model/User.model.js";
 import bcrypt  from "bcrypt";
-import dotenv from "dotenv";
-import { fileURLToPath } from "url";
 import { CONTEST_START_DATE } from "../config/contest.js";
-
-dotenv.config({ path: fileURLToPath(new URL("../../.env", import.meta.url)) });
+import config from "../config/config.js";
 
 
 
@@ -17,7 +14,7 @@ function dayOffset(n) {
 }
 
 async function seed() {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(config.mongoUri);
   await User.deleteMany({});
   await Post.deleteMany({});
 

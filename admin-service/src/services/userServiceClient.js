@@ -1,9 +1,7 @@
-import dotenv from "dotenv"
-dotenv.config()
+import config from "../config/config.js"
 
-
-const USER_SERVICE_URL = process.env.USER_SERVICE_URL; 
-const INTERNAL_SECRET = process.env.INTERNAL_SERVICE_SECRET;
+const USER_SERVICE_URL = config.userServiceUrl;
+const INTERNAL_SECRET = config.internalServiceSecret;
 
 export async function fetchFromUserService(path) {
   const res = await fetch(`${USER_SERVICE_URL}${path}`, {
