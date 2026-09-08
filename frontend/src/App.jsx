@@ -13,6 +13,10 @@ function score(value) {
   return Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })
 }
 function userLabel(id) { return id ? `${String(id).slice(0, 8)}...` : 'Unknown user' }
+function rankingPayload(value, tab) {
+  if (tab === 'category') return value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+  return Array.isArray(value) ? value : []
+}
 
 function App() {
   const [activeTab, setActiveTab] = useState('global')
@@ -37,11 +41,19 @@ function App() {
   }
 
   const loadRanking = useCallback(async (tab) => {
+    if (!user) {
+      setData(null)
+      setLoading(false)
+      return
+    }
     setLoading(true); setError('')
-    try { setData(await request(`${ADMIN_URL}/api/v1/admin/rankings/${tab}`)) }
-    catch (requestError) { setData(null); setError(requestError.message) }
+    try { setData(rankingPayload(await request(`${ADMIN_URL}/api/v1/admin/rankings/${tab}`), tab)) }
+    catch (requestError) {
+      setData(null)
+      setError(requestError.message.includes('Access denied') || requestError.message.includes('token') ? 'An admin account is required to view rankings.' : requestError.message)
+    }
     finally { setLoading(false) }
-  }, [])
+  }, [user])
 
   useEffect(() => {
     const timer = window.setTimeout(() => loadRanking(activeTab), 0)
@@ -63,7 +75,8 @@ function App() {
 
   async function createPost(event) {
     event.preventDefault(); setError(''); setMessage('')
-    const body = new FormData(); body.append('caption', postForm.caption); body.append('category', postForm.category); body.append('media', postForm.media)
+    const body = new FormData(); body.append('caption', postForm.caption); body.append('category', postForm.category)
+    if (postForm.media) body.append('media', postForm.media)
     try { const result = await request(`${USER_URL}/api/v1/post/createpost`, { method: 'POST', body }); setPost(result.post); setPostId(result.post?._id || ''); setMessage('Post created.') }
     catch (requestError) { setError(requestError.message) }
   }
@@ -75,13 +88,14 @@ function App() {
   }
 
   async function runCascade() {
+    if (!user || user.role !== 'admin') return setError('Sign in with an admin account to run the cascade.')
     setRunning(true); setError(''); setMessage('')
     try { const result = await request(`${ADMIN_URL}/api/v1/admin/run-cascade`, { method: 'POST' }); setMessage(`${result.winners?.length || 0} winners saved.`) }
     catch (requestError) { setError(requestError.message) }
     finally { setRunning(false) }
   }
 
-  const rows = activeTab === 'category' ? Object.entries(data || {}).flatMap(([category, ranking]) => ranking.map((item) => ({ ...item, category }))) : data || []
+  const rows = activeTab === 'category' ? Object.entries(data || {}).flatMap(([category, ranking]) => (Array.isArray(ranking) ? ranking : []).map((item) => ({ ...item, category }))) : Array.isArray(data) ? data : []
   const updateAuth = (field, value) => setAuthForm((current) => ({ ...current, [field]: value }))
 
   return <main className="shell">
